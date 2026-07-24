@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors - YOLO</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <h1>Rock Paper Scissors <span class="accent">YOLO</span></h1>
+        <div class="header-status" id="connection-status">
+            <span class="status-dot"></span> Connected
+        </div>
+    </header>
+
+    <main class="main-grid">
+        <!-- Left Panel: Webcam Feed -->
+        <section class="panel webcam-panel">
+            <div class="panel-header">Camera Feed</div>
+            <div class="webcam-container" id="webcam-container">
+                <video id="webcam-video" autoplay playsinline muted></video>
+                <canvas id="webcam-canvas" width="640" height="640"></canvas>
+                <div id="webcam-placeholder" class="webcam-placeholder">
+                    <svg viewBox="0 0 24 24" width="64" height="64"><path fill="currentColor" d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                    <p>Waiting for camera...</p>
+                </div>
+                <div id="detection-tag" class="detection-tag hidden">
+                    <span id="detection-label"></span>
+                    <span id="detection-confidence"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Center Panel: Game Area -->
+        <section class="panel game-panel">
+            <div class="panel-header">Game</div>
+            <div class="game-content">
+                <!-- Scoreboard -->
+                <div class="scoreboard">
+                    <div class="score-item player">
+                        <span class="score-label">You</span>
+                        <span class="score-value" id="score-player">0</span>
+                    </div>
+                    <div class="score-divider">vs</div>
+                    <div class="score-item computer">
+                        <span class="score-label">Computer</span>
+                        <span class="score-value" id="score-computer">0</span>
+                    </div>
+                </div>
+                <div class="draws-info">Draws: <span id="score-draws">0</span></div>
+
+                <!-- Countdown / Result Display -->
+                <div class="game-display" id="game-display">
+                    <div class="countdown hidden" id="countdown">
+                        <span class="countdown-number" id="countdown-number">3</span>
+                    </div>
+                    <div class="round-result hidden" id="round-result">
+                        <div class="moves-display">
+                            <div class="move-card player-move" id="player-move-card">
+                                <span class="move-icon" id="player-move-icon">✊</span>
+                                <span class="move-label" id="player-move-label">Rock</span>
+                                <span class="move-confidence" id="player-move-conf"></span>
+                            </div>
+                            <div class="vs-badge">VS</div>
+                            <div class="move-card computer-move" id="computer-move-card">
+                                <span class="move-icon" id="computer-move-icon">✋</span>
+                                <span class="move-label" id="computer-move-label">Paper</span>
+                            </div>
+                        </div>
+                        <div class="result-banner" id="result-banner"></div>
+                        <div class="strategy-info" id="strategy-info"></div>
+                    </div>
+                    <div class="waiting-state" id="waiting-state">
+                        <p>Press <strong>Start Round</strong> or <kbd>Space</kbd></p>
+                    </div>
+                    <div class="no-detect-state hidden" id="no-detect-state">
+                        <p>No hand detected!</p>
+                        <p class="sub">Show your hand clearly to the camera</p>
+                    </div>
+                    <div class="no-model-state hidden" id="no-model-state">
+                        <p>Model not loaded</p>
+                        <p class="sub">Run training first to generate the model file</p>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="game-buttons">
+                    <button class="btn-start" id="btn-start" disabled>Start Round</button>
+                    <button class="btn-auto" id="btn-auto" disabled>Auto: OFF</button>
+                </div>
+
+                <!-- AI Console -->
+                <div class="ai-console" id="ai-console">
+                    <div class="console-header">
+                        <span>AI Console</span>
+                        <span class="console-round" id="console-round">--</span>
+                    </div>
+                    <div class="console-body" id="console-body">
+                        <div class="console-line empty">Waiting for rounds...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Panel: Stats + History -->
+        <section class="panel stats-panel">
+            <div class="panel-header">Statistics</div>
+            <div class="stats-content">
+                <!-- Win Rate Gauge -->
+                <div class="stat-card">
+                    <div class="stat-title">Win Rate</div>
+                    <div class="win-rate-gauge">
+                        <canvas id="win-rate-canvas" width="120" height="120"></canvas>
+                        <span class="win-rate-text" id="win-rate-text">0%</span>
+                    </div>
+                </div>
+
+                <!-- W/L/D Bars -->
+                <div class="stat-card">
+                    <div class="stat-title">Record</div>
+                    <div class="record-bars">
+                        <div class="record-bar win">
+                            <span class="bar-label">W</span>
+                            <div class="bar-track"><div class="bar-fill" id="bar-win"></div></div>
+                            <span class="bar-value" id="val-win">0</span>
+                        </div>
+                        <div class="record-bar lose">
+                            <span class="bar-label">L</span>
+                            <div class="bar-track"><div class="bar-fill" id="bar-lose"></div></div>
+                            <span class="bar-value" id="val-lose">0</span>
+                        </div>
+                        <div class="record-bar draw">
+                            <span class="bar-label">D</span>
+                            <div class="bar-track"><div class="bar-fill" id="bar-draw"></div></div>
+                            <span class="bar-value" id="val-draw">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Move Distribution -->
+                <div class="stat-card">
+                    <div class="stat-title">Your Moves</div>
+                    <div class="move-dist">
+                        <div class="move-item">
+                            <span class="move-emoji">✊</span>
+                            <span class="move-count" id="count-rock">0</span>
+                        </div>
+                        <div class="move-item">
+                            <span class="move-emoji">✋</span>
+                            <span class="move-count" id="count-paper">0</span>
+                        </div>
+                        <div class="move-item">
+                            <span class="move-emoji">✌</span>
+                            <span class="move-count" id="count-scissors">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Strategy Accuracy -->
+                <div class="stat-card">
+                    <div class="stat-title">AI Strategy Accuracy</div>
+                    <div class="strategy-bars" id="strategy-bars">
+                        <div class="strat-item">
+                            <span class="strat-name">Markov</span>
+                            <span class="strat-acc" id="strat-markov">--</span>
+                        </div>
+                        <div class="strat-item">
+                            <span class="strat-name">Frequency</span>
+                            <span class="strat-acc" id="strat-frequency">--</span>
+                        </div>
+                        <div class="strat-item">
+                            <span class="strat-name">Anti-Rotate</span>
+                            <span class="strat-acc" id="strat-anti_rotate">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History -->
+                <div class="stat-card history-card">
+                    <div class="stat-title">Recent Rounds</div>
+                    <div class="history-table-wrap">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>You</th>
+                                    <th>AI</th>
+                                    <th>Result</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <button class="btn-reset" id="btn-reset">Reset All</button>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/websocket.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/stats.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+models/
+runs/
+__pycache__/
+*.pyc
+*.db
+.DS_Store
+.env
+*.egg-info/
+yolov8n.pt
+yolo26n.pt
+datasets/

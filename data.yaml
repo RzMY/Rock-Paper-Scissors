@@ -1,0 +1,11 @@
+# YOLO dataset config - Rock Paper Scissors
+path: C:/Users/RateMY/Documents/Code/Rock-Paper-Scissors/datasets
+train: train/images
+val: val/images
+test: test/images
+
+nc: 3
+names:
+  0: Rock
+  1: Paper
+  2: Scissors
