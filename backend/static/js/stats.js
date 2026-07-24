@@ -135,10 +135,6 @@ class StatsUI {
         const startAngle = -Math.PI / 2;
         const endAngle = startAngle + Math.PI * 2 * Math.min(rate, 1);
 
-        const gradient = ctx.createConicalGradient
-            ? ctx.createConicalGradient(0, cx, cy)
-            : null;
-
         ctx.beginPath();
         ctx.arc(cx, cy, radius, startAngle, endAngle);
         ctx.strokeStyle = rate >= 0.5 ? '#4caf50' : rate >= 0.3 ? '#ff9800' : '#f44336';

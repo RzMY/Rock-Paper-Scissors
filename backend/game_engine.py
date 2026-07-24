@@ -6,7 +6,7 @@ from typing import Optional, List, Dict, Any
 from dataclasses import dataclass
 
 from backend.config import COUNTDOWN_SECONDS, RESULT_DISPLAY_SECONDS
-from backend.ai_strategy import Move, BEATS, AIStrategy
+from backend.ai_strategy import Move, BEATS, LOSES_TO, MOVE_NAME, AIStrategy
 import backend.database as db
 
 

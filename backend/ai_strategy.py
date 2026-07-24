@@ -147,7 +147,10 @@ class MetaStrategy:
         return best_strategy
 
     def record(self, strategy_name: str, correct: bool):
-        self.scores[strategy_name].append(1 if correct else 0)
+        # Ignore untracked strategy names (e.g. the "fallback" pseudo-strategy)
+        dq = self.scores.get(strategy_name)
+        if dq is not None:
+            dq.append(1 if correct else 0)
 
     def get_accuracies(self) -> Dict[str, float]:
         return {
